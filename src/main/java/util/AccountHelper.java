@@ -1,14 +1,18 @@
 package main.java.util;
 
 import main.java.BE2;
+import main.java.ui.AdminMenu;
+import main.java.ui.CustomerMenu;
 
-public class AccountHelper {
+public abstract class AccountHelper {
     public static void loginCustomer() {
         String username = InputHelper.inputString("Enter username: ");
         String password = InputHelper.inputString("Enter password: ");
 
         if (DatabaseHelper.doesCustomerAccountMatch(username, password)) {
             System.out.println(BE2.ANSI_GREEN + "Login successful." + BE2.ANSI_RESET);
+            BE2.currentUsername = username;
+            BE2.currentMenu = new CustomerMenu();
         } else {
             System.out.println(BE2.ANSI_RED + "Incorrect username or password." + BE2.ANSI_RESET);
             System.out.println(BE2.ANSI_RED + "Login failed." + BE2.ANSI_RESET);
@@ -105,7 +109,18 @@ public class AccountHelper {
             }
         }
 
-        int age = InputHelper.inputInt("Enter your age: ");
+        int age = 0;
+        while(age == 0) {
+            try {
+                age = Integer.parseInt(InputHelper.inputInt("Enter your age: "));
+                if (age < 0) {
+                    System.out.println(BE2.ANSI_RED + "Age cannot be negative." + BE2.ANSI_RESET);
+                    age = 0;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println(BE2.ANSI_RED + "Age cannot be empty." + BE2.ANSI_RESET);
+            }
+        }
 
         String email = "";
         while (isEmailValid(email) != 0) {
@@ -166,6 +181,20 @@ public class AccountHelper {
 
         DatabaseHelper.insertCustomer(username, password, firstName, lastName, age, email, phoneNumber, address);
         System.out.println(BE2.ANSI_GREEN + "Register successful." + BE2.ANSI_RESET);
+    }
+
+    public static void loginAdmin() {
+        String username = InputHelper.inputString("Enter username: ");
+        String password = InputHelper.inputString("Enter password: ");
+
+        if (DatabaseHelper.doesAdminAccountMatch(username, password)) {
+            System.out.println(BE2.ANSI_GREEN + "Login successful." + BE2.ANSI_RESET);
+            BE2.currentUsername = username;
+            BE2.currentMenu = new AdminMenu();
+        } else {
+            System.out.println(BE2.ANSI_RED + "Incorrect username or password." + BE2.ANSI_RESET);
+            System.out.println(BE2.ANSI_RED + "Login failed." + BE2.ANSI_RESET);
+        }
     }
 
     private static int isUsernameValid(String username) {

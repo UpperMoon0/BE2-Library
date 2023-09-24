@@ -13,19 +13,23 @@ public abstract class Menu {
     protected abstract void initMenu();
     
     public static void showMenu(Menu menu) {
-        System.out.println("----------------------------------");
         int option = 0;
+        menu.options.clear();
         menu.initMenu();
-        System.out.println(menu.title);
         for (int i = 0; i < menu.options.size(); i++)
         {
             System.out.println(i + 1 + ". " + menu.options.get(i));
         }
         while (option < 1 || option > menu.options.size())
         {
-            option = InputHelper.inputInt("Choose an option: ");
-            if (option < 1 || option > menu.options.size())
-                System.out.println(BE2.ANSI_RED + "Option out of range, please try again." + BE2.ANSI_RESET);
+            try {
+                option = Integer.parseInt(InputHelper.inputInt("Choose an option: "));
+                if (option < 1 || option > menu.options.size())
+                    System.out.println(BE2.ANSI_RED + "Option out of range, please try again." + BE2.ANSI_RESET);
+            } catch (NumberFormatException e) {
+                System.out.println(BE2.ANSI_RED + "Option cannot be empty, please try again." + BE2.ANSI_RESET);
+                continue;
+            }
         }
         menu.handleOption(option);
     }

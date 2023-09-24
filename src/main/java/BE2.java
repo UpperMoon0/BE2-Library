@@ -3,7 +3,6 @@ package main.java;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
-
 import main.java.ui.MainMenu;
 import main.java.ui.Menu;
 import main.java.util.DatabaseHelper;
@@ -22,14 +21,25 @@ public class BE2 {
 
     public static final boolean DEBUG = true; 
 
+    public static Menu currentMenu = new MainMenu();
+
+    public static String currentUsername;
+
     public static Connection connection;
 
     public static Scanner scanner;
 
+    public static boolean exitFlag = false;
+
     public static void main(String[] args) {
+
         DatabaseHelper.connect();
         scanner = new Scanner(System.in);
-        Menu.showMenu(new MainMenu());
+
+        while (!exitFlag) {
+            Menu.showMenu(currentMenu);
+        }
+
         try {
             connection.close();
         } catch (SQLException e) {
