@@ -33,6 +33,12 @@ public abstract class TicketManagement {
 
                 if (!BooksManagement.doesBookExist(bookID))
                     System.out.println(BE2.ANSI_RED + "Book does not exist" + BE2.ANSI_RESET);
+                else {
+                    if (BooksManagement.getBookById(bookID).getStatus() == 1) {
+                        System.out.println(BE2.ANSI_RED + "Book is not available" + BE2.ANSI_RESET);
+                        bookID = 0;
+                    }
+                }
             } catch (NumberFormatException e) {
                 System.out.println(BE2.ANSI_RED + "Book ID cannot be empty" + BE2.ANSI_RESET);
             }

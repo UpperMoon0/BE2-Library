@@ -17,6 +17,10 @@ public class SearchBookMenu extends Menu {
     @Override
     protected void handleOption(int option) {
         switch (option) {
+            case 1:
+                System.out.println("---SEARCH BY TITLE--------------------------------------------------------------------------------------------------------------------------------------------");
+                BooksManagement.searchBookByTitle();
+                break;
             case 2:
                 System.out.println("---SEARCH BY CATEGORY-----------------------------------------------------------------------------------------------------------------------------------------");
                 BooksManagement.searchBookByCategory();

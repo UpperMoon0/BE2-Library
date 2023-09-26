@@ -58,21 +58,27 @@ public abstract class CustomerManagement {
         String email = "";
         while (isEmailValid(email) != 0) {
             email = InputHelper.inputString("Enter your email: ");
-            int isValid = isEmailValid(email);
 
-            switch(isValid) {
-                case 1:
-                    System.out.println(BE2.ANSI_RED + "Email already exists." + BE2.ANSI_RESET);
-                    break;
-                case 2:
-                    System.out.println(BE2.ANSI_RED + "Email is empty." + BE2.ANSI_RESET);
-                    break;
-                case 3:
-                    System.out.println(BE2.ANSI_RED + "Email is too long." + BE2.ANSI_RESET);
-                    break;
-                case 4:
-                    System.out.println(BE2.ANSI_RED + "Invalid email." + BE2.ANSI_RESET);
-                    break;
+            if (email == null) {
+                System.out.println(BE2.ANSI_RED + "Email cannot be empty." + BE2.ANSI_RESET);
+                email = "";
+            } else {
+                int isValid = isEmailValid(email);
+
+                switch(isValid) {
+                    case 1:
+                        System.out.println(BE2.ANSI_RED + "Email already exists." + BE2.ANSI_RESET);
+                        break;
+                    case 2:
+                        System.out.println(BE2.ANSI_RED + "Email is empty." + BE2.ANSI_RESET);
+                        break;
+                    case 3:
+                        System.out.println(BE2.ANSI_RED + "Email is too long." + BE2.ANSI_RESET);
+                        break;
+                    case 4:
+                        System.out.println(BE2.ANSI_RED + "Invalid email." + BE2.ANSI_RESET);
+                        break;
+                }
             }
         }
 

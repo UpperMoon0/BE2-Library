@@ -43,6 +43,8 @@ public abstract class DatabaseHelper {
             statement.setString(5, customer.getEmail());
             statement.setString(6, customer.getPhoneNumber());
             statement.setString(7, customer.getAddress());
+
+            statement.executeUpdate();
         } catch (SQLException e) {
             System.out.println(BE2.ANSI_RED + "Failed to insert customer into database." + BE2.ANSI_RESET);
         }
@@ -232,7 +234,7 @@ public abstract class DatabaseHelper {
 
     public static List<Book> getBookListByCategory(int CategoryID) {
         List<Book> bookList = new ArrayList<>();
-        String query = "SELECT book.Title, book.CategoryID, book.AuthorID, book.PublisherID, book.PublishDate, book.Price, book.Status FROM book WHERE CategoryID = ?";
+        String query = "SELECT * FROM book WHERE CategoryID = ?";
     
         try {
             PreparedStatement statement = BE2.connection.prepareStatement(query);
@@ -240,15 +242,16 @@ public abstract class DatabaseHelper {
             ResultSet rs = statement.executeQuery();
     
             while (rs.next()) {
-                String title = rs.getString("Title");
-                int categoryID = rs.getInt("CategoryID");
-                int authorID = rs.getInt("AuthorID");
-                int publisherID = rs.getInt("PublisherID");
-                LocalDate publishDate = rs.getDate("PublishDate").toLocalDate();
-                int price = rs.getInt("Price");
-                int status = rs.getInt("Status");
-    
-                Book book = new Book(title, categoryID, authorID, publisherID, publishDate, price, status);
+                Book book = new Book(
+                    rs.getInt("BookID"),
+                    rs.getString("Title"),
+                    rs.getInt("CategoryID"),
+                    rs.getInt("AuthorID"),
+                    rs.getInt("PublisherID"),
+                    rs.getDate("PublishDate").toLocalDate(),
+                    rs.getInt("Price"),
+                    rs.getInt("Status")
+                );
                 bookList.add(book);
             }
         } catch (SQLException e) {
@@ -260,7 +263,7 @@ public abstract class DatabaseHelper {
     
     public static List<Book> getBookListByAuthor(int AuthorID) {
         List<Book> bookList = new ArrayList<>();
-        String query = "SELECT book.Title, book.CategoryID, book.AuthorID, book.PublisherID, book.PublishDate, book.Price, book.Status FROM book WHERE AuthorID = ?";
+        String query = "SELECT * FROM book WHERE AuthorID = ?";
     
         try {
             PreparedStatement statement = BE2.connection.prepareStatement(query);
@@ -268,15 +271,16 @@ public abstract class DatabaseHelper {
             ResultSet rs = statement.executeQuery();
     
             while (rs.next()) {
-                String title = rs.getString("Title");
-                int categoryID = rs.getInt("CategoryID");
-                int authorID = rs.getInt("AuthorID");
-                int publisherID = rs.getInt("PublisherID");
-                LocalDate publishDate = rs.getDate("PublishDate").toLocalDate();
-                int price = rs.getInt("Price");
-                int status = rs.getInt("Status");
-    
-                Book book = new Book(title, categoryID, authorID, publisherID, publishDate, price, status);
+                Book book = new Book(
+                    rs.getInt("BookID"),
+                    rs.getString("Title"),
+                    rs.getInt("CategoryID"),
+                    rs.getInt("AuthorID"),
+                    rs.getInt("PublisherID"),
+                    rs.getDate("PublishDate").toLocalDate(),
+                    rs.getInt("Price"),
+                    rs.getInt("Status")
+                );
                 bookList.add(book);
             }
         } catch (SQLException e) {
@@ -288,7 +292,7 @@ public abstract class DatabaseHelper {
     
     public static List<Book> getBookListByPublisher(int PublisherID) {
         List<Book> bookList = new ArrayList<>();
-        String query = "SELECT book.Title, book.CategoryID, book.AuthorID, book.PublisherID, book.PublishDate, book.Price, book.Status FROM book WHERE PublisherID = ?";
+        String query = "SELECT * FROM book WHERE PublisherID = ?";
     
         try {
             PreparedStatement statement = BE2.connection.prepareStatement(query);
@@ -296,15 +300,16 @@ public abstract class DatabaseHelper {
             ResultSet rs = statement.executeQuery();
     
             while (rs.next()) {
-                String title = rs.getString("Title");
-                int categoryID = rs.getInt("CategoryID");
-                int authorID = rs.getInt("AuthorID");
-                int publisherID = rs.getInt("PublisherID");
-                LocalDate publishDate = rs.getDate("PublishDate").toLocalDate();
-                int price = rs.getInt("Price");
-                int status = rs.getInt("Status");
-    
-                Book book = new Book(title, categoryID, authorID, publisherID, publishDate, price, status);
+                Book book = new Book(
+                    rs.getInt("BookID"),
+                    rs.getString("Title"),
+                    rs.getInt("CategoryID"),
+                    rs.getInt("AuthorID"),
+                    rs.getInt("PublisherID"),
+                    rs.getDate("PublishDate").toLocalDate(),
+                    rs.getInt("Price"),
+                    rs.getInt("Status")
+                );
                 bookList.add(book);
             }
         } catch (SQLException e) {
@@ -312,7 +317,39 @@ public abstract class DatabaseHelper {
         }
     
         return bookList;
-    }    
+    }
+    
+    
+    public static List<Book> getBookListByTitle(String title) {
+        Connection connection = BE2.connection;
+
+        List<Book> bookList = new ArrayList<>();
+        String query = "SELECT * FROM book WHERE Title LIKE ?";
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, "%" + title + "%");
+            ResultSet rs = statement.executeQuery();
+
+            while (rs.next()) {
+                Book book = new Book(
+                    rs.getInt("BookID"),
+                    rs.getString("Title"),
+                    rs.getInt("CategoryID"),
+                    rs.getInt("AuthorID"),
+                    rs.getInt("PublisherID"),
+                    rs.getDate("PublishDate").toLocalDate(),
+                    rs.getInt("Price"),
+                    rs.getInt("Status")
+                );
+                bookList.add(book);
+            }
+        } catch (SQLException e) {
+            System.out.println(BE2.ANSI_RED + "Failed to get book list by title from database." + BE2.ANSI_RESET);
+        }
+
+        return bookList;
+    }  
 
     public static void insertBook(Book book) {
         try {
@@ -473,7 +510,8 @@ public abstract class DatabaseHelper {
             statement.setDate(5, java.sql.Date.valueOf(ticket.getBorrowDate()));
             statement.setDate(6, java.sql.Date.valueOf(ticket.getReturnDate()));
             statement.setInt(7, ticket.getStatus());
-            System.out.println(statement.toString());
+
+            statement.executeUpdate();
         } catch (SQLException e) {
             System.out.println(BE2.ANSI_RED + "Failed to insert ticket into database." + BE2.ANSI_RESET);
         }
@@ -530,8 +568,54 @@ public abstract class DatabaseHelper {
 
             statement.setString(1, category.getCategoryName());
             statement.setString(2, category.getDescription());
+
+            statement.executeUpdate();
         } catch (SQLException e) {
             System.out.println(BE2.ANSI_RED + "Failed to insert category into database." + BE2.ANSI_RESET);
         }
     }
+
+    public static void printAuthorListMini() {
+        String query = "SELECT * FROM author";
+    
+        try {
+            PreparedStatement statement = BE2.connection.prepareStatement(query);
+            ResultSet rs = statement.executeQuery();
+    
+            System.out.println(String.format("%-5s | %-30s | %-30s", "ID", "Nickname", "Name"));
+            System.out.println("------|--------------------------------|--------------------------------");
+    
+            while (rs.next()) {
+                int authorID = rs.getInt("AuthorID");
+                String nickname = rs.getString("NickName");
+                String name = rs.getString("FirstName") + " " + rs.getString("LastName");
+    
+                System.out.println(String.format("%-5s | %-30s | %-30s", authorID, nickname, name));
+            }
+        } catch (SQLException e) {
+            System.out.println(BE2.ANSI_RED + "Failed to get authors from database." + BE2.ANSI_RESET);
+        }
+    }      
+
+    public static void printPublisherListMini() {
+        String query = "SELECT * FROM publisher";
+    
+        try {
+            PreparedStatement statement = BE2.connection.prepareStatement(query);
+            ResultSet rs = statement.executeQuery();
+    
+            System.out.println(String.format("%-5s | %-30s", "ID", "Publisher Name"));
+            System.out.println("------|--------------------------------");
+    
+            while (rs.next()) {
+                int publisherID = rs.getInt("PublisherID");
+                String publisherName = rs.getString("PublisherName");
+    
+                System.out.println(String.format("%-5s | %-30s", publisherID, publisherName));
+            }
+        } catch (SQLException e) {
+            System.out.println(BE2.ANSI_RED + "Failed to get publishers from database." + BE2.ANSI_RESET);
+        }
+    }
+    
 }

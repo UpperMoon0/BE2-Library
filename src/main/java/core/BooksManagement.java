@@ -16,9 +16,7 @@ public abstract class BooksManagement {
             System.out.println("Book count: " + bookList.size());
             System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------");
         }
-        
-        System.out.println(String.format("%-5s | %-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "ID" , "Title", "Category", "Author", "Publisher", "Publish Date", "Price", "Status"));
-        System.out.println("------|--------------------------------|----------------------|----------------------|--------------------------------|-----------------|------------|----------------");
+        showBookTableHeader();
 
         for (Book book : bookList) {
             System.out.println(book);
@@ -34,6 +32,10 @@ public abstract class BooksManagement {
             }
         }
 
+        System.out.println("Category list:");
+        CategoryManagement.showAllCategory();
+        System.out.println();
+
         int categoryID = 0;
         while (categoryID == 0) {
             try {
@@ -46,6 +48,10 @@ public abstract class BooksManagement {
             }
         }
 
+        System.out.println("Author list:");
+        DatabaseHelper.printAuthorListMini();
+        System.out.println();
+
         int authorID = 0;
         while (authorID == 0) {
             try {
@@ -57,6 +63,10 @@ public abstract class BooksManagement {
                 System.out.println(BE2.ANSI_RED + "Author ID cannot be empty." + BE2.ANSI_RESET);
             }
         }
+
+        System.out.println("Publisher list:");
+        DatabaseHelper.printPublisherListMini();
+        System.out.println();
 
         int publisherID = 0;
         while (publisherID == 0) {
@@ -93,19 +103,7 @@ public abstract class BooksManagement {
             }
         }
 
-        int status = -1;
-        while (status < 0 || status > 1) {
-            try {
-                status = Integer.parseInt(InputHelper.inputInt("Enter status (0: Available, 1: Not available): "));
-                if (status < 0 || status > 1) {
-                    System.out.println(BE2.ANSI_RED + "Status must be 0 or 1." + BE2.ANSI_RESET);
-                }
-            } catch (NumberFormatException e) {
-                System.out.println(BE2.ANSI_RED + "Status cannot be empty." + BE2.ANSI_RESET);
-            }
-        }
-
-        Book book = new Book(title, categoryID, authorID, publisherID, publishDate, price, status);
+        Book book = new Book(title, categoryID, authorID, publisherID, publishDate, price, 0);
         DatabaseHelper.insertBook(book);
     }
 
@@ -132,6 +130,10 @@ public abstract class BooksManagement {
         if (title == null || title.isEmpty()) {
             title = oldBook.getTitle();
         }
+
+        System.out.println("Category list:");
+        CategoryManagement.showAllCategory();
+        System.out.println();
     
         int categoryID = oldBook.getCategoryID();
         try {
@@ -142,6 +144,10 @@ public abstract class BooksManagement {
         } catch (NumberFormatException e) {
             System.out.println(BE2.ANSI_RED + "Category ID must be an integer." + BE2.ANSI_RESET);
         }
+
+        System.out.println("Author list:");
+        DatabaseHelper.printAuthorListMini();
+        System.out.println();
     
         int authorID = oldBook.getAuthorID();
         try {
@@ -152,6 +158,10 @@ public abstract class BooksManagement {
         } catch (NumberFormatException e) {
             System.out.println(BE2.ANSI_RED + "Author ID must be an integer." + BE2.ANSI_RESET);
         }
+
+        System.out.println("Publisher list:");
+        DatabaseHelper.printPublisherListMini();
+        System.out.println();
 
         int publisherID = oldBook.getPublisherID();
         try {
@@ -180,14 +190,6 @@ public abstract class BooksManagement {
         }
 
         int status = oldBook.getStatus();
-        try {
-            String input = InputHelper.inputInt("Enter status (0: Available, 1: Not available) (leave empty to keep the old status): ");
-            if (!"EMPTY_INPUT".equals(input)) {
-                status = Integer.parseInt(input);
-            }
-        } catch (NumberFormatException e) {
-            System.out.println(BE2.ANSI_RED + "Status must be 0 or 1." + BE2.ANSI_RESET);
-        }
     
         Book newBook = new Book(bookID, title, categoryID, authorID, publisherID, publishDate, price, status);
         DatabaseHelper.updateBook(newBook);
@@ -211,6 +213,8 @@ public abstract class BooksManagement {
     }  
 
     public static void searchBookByCategory() {
+        CategoryManagement.showAllCategory();
+
         try {
             int categoryID = Integer.parseInt(InputHelper.inputInt("Enter category ID: "));
             List<Book> bookList = DatabaseHelper.getBookListByCategory(categoryID);
@@ -218,8 +222,7 @@ public abstract class BooksManagement {
             if (bookList.size() > 0) {
                 System.out.println("Book count: " + bookList.size());
                 System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
-                System.out.println(String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "Title", "Category", "Author", "Publisher", "Publish Date", "Price (VND)", "Status"));
-                System.out.println("-------------------------------|----------------------|----------------------|--------------------------------|-----------------|------------|----------------");
+                showBookTableHeader();
 
                 for (Book book : bookList) {
                     System.out.println(book);
@@ -240,8 +243,7 @@ public abstract class BooksManagement {
             if (bookList.size() > 0) {
                 System.out.println("Book count: " + bookList.size());
                 System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
-                System.out.println(String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "Title", "Category", "Author", "Publisher", "Publish Date", "Price (VND)", "Status"));
-                System.out.println("-------------------------------|----------------------|----------------------|--------------------------------|-----------------|------------|----------------");
+                showBookTableHeader();
 
                 for (Book book : bookList) {
                     System.out.println(book);
@@ -262,8 +264,7 @@ public abstract class BooksManagement {
             if (bookList.size() > 0) {
                 System.out.println("Book count: " + bookList.size());
                 System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
-                System.out.println(String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "Title", "Category", "Author", "Publisher", "Publish Date", "Price (VND)", "Status"));
-                System.out.println("-------------------------------|----------------------|----------------------|--------------------------------|-----------------|------------|----------------");
+                showBookTableHeader();
 
                 for (Book book : bookList) {
                     System.out.println(book);
@@ -275,6 +276,27 @@ public abstract class BooksManagement {
             System.out.println(BE2.ANSI_RED + "Publisher ID cannot be empty." + BE2.ANSI_RESET);
         }
     }
+
+    public static void searchBookByTitle() {
+        try {
+            String title = InputHelper.inputString("Enter book title: ");
+            List<Book> bookList = DatabaseHelper.getBookListByTitle(title);
+    
+            if (bookList.size() > 0) {
+                System.out.println("Book count: " + bookList.size());
+                System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
+                showBookTableHeader();
+
+                for (Book book : bookList) {
+                    System.out.println(book);
+                }
+            } else {
+                System.out.println(BE2.ANSI_RED + "No book found with the title '" + title + "'." + BE2.ANSI_RESET);
+            }
+        } catch (Exception e) {
+            System.out.println(BE2.ANSI_RED + "An error occurred while searching for books by title." + BE2.ANSI_RESET);
+        }
+    }    
 
     public static boolean doesBookExist(int bookID) {
         var bookList = DatabaseHelper.getBookList();
@@ -310,5 +332,10 @@ public abstract class BooksManagement {
                 break;
             }
         }
+    }
+
+    private  static void showBookTableHeader() {
+        System.out.println(String.format("%-5s | %-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "ID" , "Title", "Category", "Author", "Publisher", "Publish Date", "Price (VND)", "Status"));
+        System.out.println("------|--------------------------------|----------------------|----------------------|--------------------------------|-----------------|------------|----------------");
     }
 }
