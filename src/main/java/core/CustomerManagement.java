@@ -1,78 +1,11 @@
-package main.java.util;
+package main.java.core;
 
 import main.java.BE2;
-import main.java.ui.AdminMenu;
-import main.java.ui.CustomerMenu;
+import main.java.util.DatabaseHelper;
+import main.java.util.InputHelper;
 
-public abstract class AccountHelper {
-    public static void loginCustomer() {
-        String username = InputHelper.inputString("Enter username: ");
-        String password = InputHelper.inputString("Enter password: ");
-
-        if (DatabaseHelper.doesCustomerAccountMatch(username, password)) {
-            System.out.println(BE2.ANSI_GREEN + "Login successful." + BE2.ANSI_RESET);
-            BE2.currentUsername = username;
-            BE2.currentMenu = new CustomerMenu();
-        } else {
-            System.out.println(BE2.ANSI_RED + "Incorrect username or password." + BE2.ANSI_RESET);
-            System.out.println(BE2.ANSI_RED + "Login failed." + BE2.ANSI_RESET);
-        }
-    }
-
+public abstract class CustomerManagement {
     public static void registerCustomer() {
-        String username = "";
-        while (isUsernameValid(username) != 0) {
-            username = InputHelper.inputString("Enter username: ");
-            int isValid = isUsernameValid(username);
-
-            if (isValid == 0)
-                break;
-
-            switch (isValid ) {
-                case 1:
-                    System.out.println(BE2.ANSI_RED + "Username already exists." + BE2.ANSI_RESET);
-                    break;
-                case 2:
-                    System.out.println(BE2.ANSI_RED + "Username is empty." + BE2.ANSI_RESET);
-                    break;
-                case 3:
-                    System.out.println(BE2.ANSI_RED + "Username is too short." + BE2.ANSI_RESET);
-                    break;
-                case 4:
-                    System.out.println(BE2.ANSI_RED + "Username is too long." + BE2.ANSI_RESET);
-                    break;
-                case 5:
-                    System.out.println(BE2.ANSI_RED + "Username contains invalid characters." + BE2.ANSI_RESET);
-                    break;
-            }
-            System.out.format(BE2.ANSI_RED + "Username must:%n-Be between 6 and 20 characters%n-Contain only letters and numbers%n" + BE2.ANSI_RESET);
-        }
-
-        String password = "";
-        while (isPasswordValid(password) != 0) {
-            password = InputHelper.inputString("Enter password: ");
-            int isValid = isPasswordValid(password);
-
-            if (isValid == 0)
-                break;
-
-            switch (isValid) {
-                case 1:
-                    System.out.println(BE2.ANSI_RED + "Password is empty." + BE2.ANSI_RESET);
-                    break;
-                case 2:
-                    System.out.println(BE2.ANSI_RED + "Password is too short." + BE2.ANSI_RESET);
-                    break;
-                case 3:
-                    System.out.println(BE2.ANSI_RED + "Password is too long." + BE2.ANSI_RESET);
-                    break;
-                case 4:
-                    System.out.println(BE2.ANSI_RED + "Password does not meet complexity requirements." + BE2.ANSI_RESET);
-                    break;
-            }
-            System.out.format(BE2.ANSI_RED + "Password must:%n-Be between 8 and 20 characters%n-Contain at least one uppercase letter%n-Contain at least one lowercase letter%n-Contain at least one number%n-Contain at least one special character%n" + BE2.ANSI_RESET);
-        }
-
         String firstName = "";
         while (isFirstNameValid(firstName) != 0) {
             firstName = InputHelper.inputString("Enter first name: ");
@@ -179,65 +112,9 @@ public abstract class AccountHelper {
             }
         }
 
-        DatabaseHelper.insertCustomer(username, password, firstName, lastName, age, email, phoneNumber, address);
+        Customer customer = new Customer(DatabaseHelper.getAdminIDFromUsername(BE2.currentAdmin), firstName, lastName, age, email, phoneNumber, address);
+        DatabaseHelper.insertCustomer(customer);
         System.out.println(BE2.ANSI_GREEN + "Register successful." + BE2.ANSI_RESET);
-    }
-
-    public static void loginAdmin() {
-        String username = InputHelper.inputString("Enter username: ");
-        String password = InputHelper.inputString("Enter password: ");
-
-        if (DatabaseHelper.doesAdminAccountMatch(username, password)) {
-            System.out.println(BE2.ANSI_GREEN + "Login successful." + BE2.ANSI_RESET);
-            BE2.currentUsername = username;
-            BE2.currentMenu = new AdminMenu();
-        } else {
-            System.out.println(BE2.ANSI_RED + "Incorrect username or password." + BE2.ANSI_RESET);
-            System.out.println(BE2.ANSI_RED + "Login failed." + BE2.ANSI_RESET);
-        }
-    }
-
-    private static int isUsernameValid(String username) {
-        if (username.matches("^[a-zA-Z0-9]{6,20}$")) {
-            if (DatabaseHelper.doesCustomerUsernameExist(username))
-                return 1; // Username already exists
-            else
-                return 0; // Username is valid
-        } else {
-            if (username.length() == 0) {
-                return 2; // Username is empty
-            } 
-            
-            if(username.length() < 6) {
-                return 3; // Username is too short
-            } 
-            
-            if (username.length() > 20) {
-                return 4; // Username is too long
-            } 
-                
-            return 5; // Username contains invalid characters
-        }
-    }
-    
-    private static int isPasswordValid(String password) {
-        if (password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,20}$")) {
-            return 0; // Password is valid
-        } else {
-            if (password.length() == 0) {
-                return 1; // Password is empty
-            } 
-            
-            if(password.length() < 8) {
-                return 2; // Password is too short
-            } 
-            
-            if (password.length() > 20) {
-                return 3; // Password is too long
-            } 
-                
-            return 4; // Password does not meet complexity requirements
-        }
     }
 
     private static int isFirstNameValid(String firstName) {
@@ -313,5 +190,26 @@ public abstract class AccountHelper {
                 
             return 3; // Contains invalid characters
         }
+    }
+
+    public static void showAllCustomers() {
+        var customerList = DatabaseHelper.getCustomerList();
+        System.out.format("%-5s | %-30s | %-5s | %-30s | %-15s | %-40s%n", "ID", "Name", "Age", "Email", "Phone number", "Address");
+        System.out.println("------|--------------------------------|-------|--------------------------------|-----------------|-----------------------------------------");
+
+        for (Customer c : customerList) {
+            System.out.println(c);
+        }
+    }
+
+    public static boolean doesCustomerExist(int CustomerID) {
+        var customerList = DatabaseHelper.getCustomerList();
+
+        for (Customer c : customerList) {
+            if (c.getCustomerID() == CustomerID)
+                return true;
+        }
+
+        return false;
     }
 }

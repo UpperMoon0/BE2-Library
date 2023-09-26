@@ -2,9 +2,11 @@ package main.java.core;
 
 import java.time.LocalDate;
 
+import main.java.BE2;
 import main.java.util.DatabaseHelper;
 
 public class Book {
+    private int bookID;
     private String title;
     private int categoryID;
     private int authorID;
@@ -13,7 +15,8 @@ public class Book {
     private int price;
     private int status;
 
-    public Book(String title, int categoryID, int authorID, int publisherID, LocalDate publishDate, int price, int status) {
+    public Book(int bookID, String title, int categoryID, int authorID, int publisherID, LocalDate publishDate, int price, int status) {
+        this.bookID = bookID;
         this.title = title;
         this.categoryID = categoryID;
         this.authorID = authorID;
@@ -21,6 +24,10 @@ public class Book {
         this.publishDate = publishDate;
         this.price = price;
         this.status = status;
+    }
+
+    public Book(String title, int categoryID, int authorID, int publisherID, LocalDate publishDate, int price, int status) {
+        this(0, title, categoryID, authorID, publisherID, publishDate, price, status);
     }
 
     public String getTitle() {
@@ -51,20 +58,28 @@ public class Book {
         return status;
     }
 
+    public int getBookID() {
+        return bookID;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         String statusStr = "";
 
         switch (this.status) {
             case 0: 
-                statusStr = "Available";
+                statusStr = BE2.ANSI_GREEN + "Available" + BE2.ANSI_RESET;
                 break;
             case 1:
-                statusStr = "Not available";
+                statusStr = BE2.ANSI_RED + "Not available" + BE2.ANSI_RESET;
                 break;
         }
 
-        return String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", title, DatabaseHelper.getCategoryNameFromID(categoryID), DatabaseHelper.getAuthorNameFromID(authorID), DatabaseHelper.getPublisherNameFromID(publisherID), publishDate, price * 1000, statusStr);
+        return String.format("%-5s | %-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", bookID, title, DatabaseHelper.getCategoryNameFromID(categoryID), DatabaseHelper.getAuthorNameFromID(authorID), DatabaseHelper.getPublisherNameFromID(publisherID), publishDate, price * 1000, statusStr);
     }
 
     @Override

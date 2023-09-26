@@ -11,6 +11,9 @@ import java.util.List;
 
 import main.java.BE2;
 import main.java.core.Book;
+import main.java.core.BookCategory;
+import main.java.core.Customer;
+import main.java.core.Ticket;
 
 public abstract class DatabaseHelper {
     public static void connect() {
@@ -29,50 +32,61 @@ public abstract class DatabaseHelper {
         }
     }
 
-    public static void insertCustomer(String username, String password, String firstName, String lastName, int age, String email, String phoneNumber, String address) {
+    public static void insertCustomer(Customer customer) {
         try {
-            PreparedStatement statement = BE2.connection.prepareStatement("INSERT INTO customer (Username, UserPassword, FirstName, LastName, Age, Email, PhoneNumber, Address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            
-            statement.setString(1, username);
-            statement.setString(2, password);
-            statement.setString(3, firstName);
-            statement.setString(4, lastName);
-            statement.setInt(5, age);
-            statement.setString(6, email);
-            statement.setString(7, phoneNumber);
-            statement.setString(8, address);
+            PreparedStatement statement = BE2.connection.prepareStatement("INSERT INTO customer (AdminID, FirstName, LastName, Age, Email, PhoneNumber, Address) VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-            int rowsInserted = statement.executeUpdate();
-            if (rowsInserted > 0 && BE2.DEBUG) {
-                System.out.println(BE2.ANSI_GREEN + "A new user was inserted successfully!" + BE2.ANSI_RESET);
-            }
+            statement.setInt(1, customer.getAdminID());
+            statement.setString(2, customer.getFirstName());
+            statement.setString(3, customer.getLastName());
+            statement.setInt(4, customer.getAge());
+            statement.setString(5, customer.getEmail());
+            statement.setString(6, customer.getPhoneNumber());
+            statement.setString(7, customer.getAddress());
         } catch (SQLException e) {
             System.out.println(BE2.ANSI_RED + "Failed to insert customer into database." + BE2.ANSI_RESET);
         }
     }
 
-    public static boolean doesCustomerUsernameExist(String username) {
-        Connection connection = BE2.connection; 
-        boolean exists = false;
-
+    public static List<Customer> getCustomerList() {
+        List<Customer> customerList = new ArrayList<>();
+        String query = "SELECT * FROM customer";
+    
         try {
-            String query = "SELECT COUNT(*) FROM customer WHERE UserName = ?";
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, username);
-            ResultSet resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                int count = resultSet.getInt(1);
-                if (count > 0) {
-                    exists = true;
-                }
+            PreparedStatement statement = BE2.connection.prepareStatement(query);
+            ResultSet rs = statement.executeQuery();
+    
+            while (rs.next()) {
+                int customerID = rs.getInt("CustomerID");
+                int adminID = rs.getInt("AdminID");
+                String firstName = rs.getString("FirstName");
+                String lastName = rs.getString("LastName");
+                int age = rs.getInt("Age");
+                String email = rs.getString("Email");
+                String phoneNumber = rs.getString("PhoneNumber");
+                String address = rs.getString("Address");
+    
+                Customer customer = new Customer(customerID, adminID, firstName, lastName, age, email, phoneNumber, address);
+                customerList.add(customer);
             }
         } catch (SQLException e) {
-            System.out.println(BE2.ANSI_RED + "Failed to check if customer username exists from database." + BE2.ANSI_RESET);
+            System.out.println(BE2.ANSI_RED + "Failed to get customer list from database." + BE2.ANSI_RESET);
+        }
+    
+        return customerList;
+    }  
+    
+    public static Customer getCustomerByID(int customerID) {
+        var customerList = getCustomerList();
+
+        for (Customer c : customerList) {
+            if (c.getCustomerID() == customerID) {
+                return c;
+            }
         }
 
-        return exists;
-    }
+        return null;
+    } 
 
     public static boolean doesCustomerEmailExist(String email) {
         Connection connection = BE2.connection; 
@@ -168,36 +182,36 @@ public abstract class DatabaseHelper {
         return exists;
     }
 
-    public static boolean doesBookExist(int bookID) {
-        var bookList = getBookList();
-
-        if (bookID > bookList.size() || bookID < 1) {
-            return false;
+    public static int getAdminIDFromUsername(String userName) {
+        Connection connection = BE2.connection; 
+        int adminID = -1;
+    
+        try {
+            String query = "SELECT AdminID FROM adminuser WHERE UserName = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, userName);
+            ResultSet resultSet = statement.executeQuery();
+    
+            if (resultSet.next()) {
+                adminID = resultSet.getInt("AdminID");
+            }
+        } catch (SQLException e) {
+            System.out.println(BE2.ANSI_RED + "Failed to retrieve AdminID from database." + BE2.ANSI_RESET);
         }
-
-        return true;
-    }
-
-    public static Book getBook(int bookID) {
-        var bookList = getBookList();
-
-        if (!doesBookExist(bookID)) {
-            System.out.println(BE2.ANSI_RED + "Book does not exist." + BE2.ANSI_RESET);
-            return null;
-        }
-
-        return bookList.get(bookID - 1);
-    }
+    
+        return adminID;
+    }    
 
     public static List<Book> getBookList() {
         List<Book> bookList = new ArrayList<>();
-        String query = "SELECT book.Title, book.CategoryID, book.AuthorID, book.PublisherID, book.PublishDate, book.Price, book.Status FROM book";
+        String query = "SELECT book.BookID, book.Title, book.CategoryID, book.AuthorID, book.PublisherID, book.PublishDate, book.Price, book.Status FROM book";
     
         try {
             PreparedStatement statement = BE2.connection.prepareStatement(query);
             ResultSet rs = statement.executeQuery();
     
             while (rs.next()) {
+                int bookID = rs.getInt("BookID");
                 String title = rs.getString("Title");
                 int categoryID = rs.getInt("CategoryID");
                 int authorID = rs.getInt("AuthorID");
@@ -206,7 +220,7 @@ public abstract class DatabaseHelper {
                 int price = rs.getInt("Price");
                 int status = rs.getInt("Status");
     
-                Book book = new Book(title, categoryID, authorID, publisherID, publishDate, price, status);
+                Book book = new Book(bookID, title, categoryID, authorID, publisherID, publishDate, price, status);
                 bookList.add(book);
             }
         } catch (SQLException e) {
@@ -321,7 +335,7 @@ public abstract class DatabaseHelper {
         }
     }      
 
-    public static void updateBook(int BookID, Book book) {
+    public static void updateBook(Book book) {
         try {
             String query = "UPDATE book SET Title = ?, CategoryID = ?, AuthorID = ?, PublisherID = ?, PublishDate = ?, Price = ?, Status = ? WHERE BookID = ?";
             PreparedStatement statement = BE2.connection.prepareStatement(query);
@@ -332,12 +346,10 @@ public abstract class DatabaseHelper {
             statement.setDate(5, java.sql.Date.valueOf(book.getPublishDate()));
             statement.setInt(6, book.getPrice());
             statement.setInt(7, book.getStatus());
-            statement.setInt(8, BookID);
+            statement.setInt(8, book.getBookID());
     
             int rowsUpdated = statement.executeUpdate();
-            if (rowsUpdated > 0) {
-                System.out.println(BE2.ANSI_GREEN + "The book was updated successfully!" + BE2.ANSI_RESET);
-            } else {
+            if (rowsUpdated <= 0) {
                 System.out.println(BE2.ANSI_RED + "The book was not found." + BE2.ANSI_RESET);
             }
         } catch (SQLException e) {
@@ -419,5 +431,107 @@ public abstract class DatabaseHelper {
         }
     
         return publisherName;
+    }
+
+    public static List<Ticket> getTicketList() {
+        List<Ticket> ticketList = new ArrayList<>();
+        String query = "SELECT * FROM ticket";
+    
+        try {
+            PreparedStatement statement = BE2.connection.prepareStatement(query);
+            ResultSet rs = statement.executeQuery();
+    
+            while (rs.next()) {
+                int ticketID = rs.getInt("TicketID");
+                int adminID = rs.getInt("AdminID");
+                int customerID = rs.getInt("CustomerID");
+                int bookID = rs.getInt("BookID");
+                int fee = rs.getInt("Fee");
+                LocalDate borrowDate = rs.getDate("BorrowDate").toLocalDate();
+                LocalDate returnDate = rs.getDate("ReturnDate").toLocalDate();
+                int status = rs.getInt("TicketStatus");
+    
+                Ticket ticket = new Ticket(ticketID, adminID, customerID, bookID, fee, borrowDate, returnDate, status);
+                ticketList.add(ticket);
+            }
+        } catch (SQLException e) {
+            System.out.println(BE2.ANSI_RED + "Failed to get ticket list from database." + BE2.ANSI_RESET);
+        }
+    
+        return ticketList;
+    }
+    
+
+    public static void insertTicket(Ticket ticket) {
+        try {
+            PreparedStatement statement = BE2.connection.prepareStatement("INSERT INTO ticket (AdminID, CustomerID, BookID, Fee, BorrowDate, ReturnDate, TicketStatus) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+            statement.setInt(1, ticket.getAdminID());
+            statement.setInt(2, ticket.getCustomerID());
+            statement.setInt(3, ticket.getBookID());
+            statement.setInt(4, ticket.getFee());
+            statement.setDate(5, java.sql.Date.valueOf(ticket.getBorrowDate()));
+            statement.setDate(6, java.sql.Date.valueOf(ticket.getReturnDate()));
+            statement.setInt(7, ticket.getStatus());
+            System.out.println(statement.toString());
+        } catch (SQLException e) {
+            System.out.println(BE2.ANSI_RED + "Failed to insert ticket into database." + BE2.ANSI_RESET);
+        }
+    }
+
+    public static void updateTicket(Ticket ticket) {
+        try {
+            PreparedStatement statement = BE2.connection.prepareStatement("UPDATE ticket SET AdminID = ?, CustomerID = ?, BookID = ?, Fee = ?, BorrowDate = ?, ReturnDate = ?, TicketStatus = ? WHERE TicketID = ?");
+    
+            statement.setInt(1, ticket.getAdminID());
+            statement.setInt(2, ticket.getCustomerID());
+            statement.setInt(3, ticket.getBookID());
+            statement.setInt(4, ticket.getFee());
+            statement.setDate(5, java.sql.Date.valueOf(ticket.getBorrowDate()));
+            statement.setDate(6, java.sql.Date.valueOf(ticket.getReturnDate()));
+            statement.setInt(7, ticket.getStatus());
+            statement.setInt(8, ticket.getTicketID());
+    
+            int rowsUpdated = statement.executeUpdate();
+            if (rowsUpdated <= 0) {
+                System.out.println(BE2.ANSI_RED + "The ticket was not found." + BE2.ANSI_RESET);
+            }
+        } catch (SQLException e) {
+            System.out.println(BE2.ANSI_RED + "Failed to update ticket in database." + BE2.ANSI_RESET);
+        }
+    }    
+
+    public static List<BookCategory> getCategoryList() {
+        List<BookCategory> categoryList = new ArrayList<>();
+        String query = "SELECT * FROM category";
+    
+        try {
+            PreparedStatement statement = BE2.connection.prepareStatement(query);
+            ResultSet rs = statement.executeQuery();
+    
+            while (rs.next()) {
+                int categoryID = rs.getInt("CategoryID");
+                String categoryName = rs.getString("CategoryName");
+                String description = rs.getString("CategoryDescription");
+    
+                BookCategory category = new BookCategory(categoryID, categoryName, description);
+                categoryList.add(category);
+            }
+        } catch (SQLException e) {
+            System.out.println(BE2.ANSI_RED + "Failed to get category list from database." + BE2.ANSI_RESET);
+        }
+    
+        return categoryList;
+    }
+    
+    public static void insertCategory(BookCategory category) {
+        try {
+            PreparedStatement statement = BE2.connection.prepareStatement("INSERT INTO category (CategoryName, CategoryDescription) VALUES (?, ?)");
+
+            statement.setString(1, category.getCategoryName());
+            statement.setString(2, category.getDescription());
+        } catch (SQLException e) {
+            System.out.println(BE2.ANSI_RED + "Failed to insert category into database." + BE2.ANSI_RESET);
+        }
     }
 }

@@ -8,13 +8,17 @@ import main.java.util.DatabaseHelper;
 import main.java.util.InputHelper;
 
 public abstract class BooksManagement {
-    public static void showAllBooks() {
+    public static void showAllBooks(boolean withCount) {
         var bookList = DatabaseHelper.getBookList();
 
-        System.out.println("Book count: " + bookList.size());
-        System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
-        System.out.println(String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "Title", "Category", "Author", "Publisher", "Publish Date", "Price", "Status"));
-        System.out.println("-------------------------------|----------------------|----------------------|--------------------------------|-----------------|------------|----------------");
+        if (withCount)
+        {
+            System.out.println("Book count: " + bookList.size());
+            System.out.println("----------------------------------------------------------------------------------------------------------------------------------------------------------------------");
+        }
+        
+        System.out.println(String.format("%-5s | %-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "ID" , "Title", "Category", "Author", "Publisher", "Publish Date", "Price", "Status"));
+        System.out.println("------|--------------------------------|----------------------|----------------------|--------------------------------|-----------------|------------|----------------");
 
         for (Book book : bookList) {
             System.out.println(book);
@@ -26,7 +30,7 @@ public abstract class BooksManagement {
         while (title.isEmpty() || title == null) {
             title = InputHelper.inputString("Enter book title: ");
             if (title == null) {
-                System.out.println("BE2.ANSI_RED + Title cannot be empty."  + BE2.ANSI_RESET);
+                System.out.println(BE2.ANSI_RED + "Title cannot be empty." + BE2.ANSI_RESET);
             }
         }
 
@@ -107,12 +111,13 @@ public abstract class BooksManagement {
 
     public static void updateBook() {
         int bookID = 0;
-        while (bookID == 0 || !DatabaseHelper.doesBookExist(bookID)) {
+
+        while (!doesBookExist(bookID)) {
             try {
                 String input = InputHelper.inputInt("Enter book ID: ");
                 if (!"EMPTY_INPUT".equals(input)) {
                     bookID = Integer.parseInt(input);
-                    if (bookID == 0 || !DatabaseHelper.doesBookExist(bookID)) {
+                    if (bookID == 0 || !doesBookExist(bookID)) {
                         System.out.println(BE2.ANSI_RED + "Book ID cannot be 0 and must exist in the database." + BE2.ANSI_RESET);
                     }
                 }
@@ -121,7 +126,7 @@ public abstract class BooksManagement {
             }
         }
     
-        Book oldBook = DatabaseHelper.getBook(bookID);
+        Book oldBook = getBookById(bookID);
     
         String title = InputHelper.inputString("Enter book title (leave empty to keep the old title): ");
         if (title == null || title.isEmpty()) {
@@ -184,16 +189,16 @@ public abstract class BooksManagement {
             System.out.println(BE2.ANSI_RED + "Status must be 0 or 1." + BE2.ANSI_RESET);
         }
     
-        Book newBook = new Book(title, categoryID, authorID, publisherID, publishDate, price, status);
-        DatabaseHelper.updateBook(bookID, newBook);
+        Book newBook = new Book(bookID, title, categoryID, authorID, publisherID, publishDate, price, status);
+        DatabaseHelper.updateBook(newBook);
     }     
 
     public static void deleteBook() {
         int bookID = 0;
-        while (bookID == 0) {
+        while (!doesBookExist(bookID)) {
             try {
                 bookID = Integer.parseInt(InputHelper.inputInt("Enter book ID: "));
-                if (!DatabaseHelper.doesBookExist(bookID)) {
+                if (!doesBookExist(bookID)) {
                     System.out.println(BE2.ANSI_RED + "Book ID cannot be 0 and must exist in the database." + BE2.ANSI_RESET);
                 }
             } catch (NumberFormatException e) {
@@ -213,7 +218,7 @@ public abstract class BooksManagement {
             if (bookList.size() > 0) {
                 System.out.println("Book count: " + bookList.size());
                 System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
-                System.out.println(String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "Title", "Category", "Author", "Publisher", "Publish Date", "Price", "Status"));
+                System.out.println(String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "Title", "Category", "Author", "Publisher", "Publish Date", "Price (VND)", "Status"));
                 System.out.println("-------------------------------|----------------------|----------------------|--------------------------------|-----------------|------------|----------------");
 
                 for (Book book : bookList) {
@@ -235,7 +240,7 @@ public abstract class BooksManagement {
             if (bookList.size() > 0) {
                 System.out.println("Book count: " + bookList.size());
                 System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
-                System.out.println(String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "Title", "Category", "Author", "Publisher", "Publish Date", "Price", "Status"));
+                System.out.println(String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "Title", "Category", "Author", "Publisher", "Publish Date", "Price (VND)", "Status"));
                 System.out.println("-------------------------------|----------------------|----------------------|--------------------------------|-----------------|------------|----------------");
 
                 for (Book book : bookList) {
@@ -257,7 +262,7 @@ public abstract class BooksManagement {
             if (bookList.size() > 0) {
                 System.out.println("Book count: " + bookList.size());
                 System.out.println("--------------------------------------------------------------------------------------------------------------------------------------------------------------");
-                System.out.println(String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "Title", "Category", "Author", "Publisher", "Publish Date", "Price", "Status"));
+                System.out.println(String.format("%-30s | %-20s | %-20s | %-30s | %-15s | %-10s | %-15s", "Title", "Category", "Author", "Publisher", "Publish Date", "Price (VND)", "Status"));
                 System.out.println("-------------------------------|----------------------|----------------------|--------------------------------|-----------------|------------|----------------");
 
                 for (Book book : bookList) {
@@ -268,6 +273,42 @@ public abstract class BooksManagement {
             }
         } catch (NumberFormatException e) {
             System.out.println(BE2.ANSI_RED + "Publisher ID cannot be empty." + BE2.ANSI_RESET);
+        }
+    }
+
+    public static boolean doesBookExist(int bookID) {
+        var bookList = DatabaseHelper.getBookList();
+
+        for (Book b : bookList) {
+            if (b.getBookID() == bookID) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static Book getBookById(int bookID) {
+        var bookList = DatabaseHelper.getBookList();
+
+        for (Book b : bookList) {
+            if (b.getBookID() == bookID) {
+                return b;
+            }
+        }
+
+        return null;
+    }
+
+    public static void updateBookStatus(int status, int bookID) {
+        var bookList = DatabaseHelper.getBookList();
+
+        for (Book b : bookList) {
+            if (b.getBookID() == bookID) {
+                b.setStatus(status);
+                DatabaseHelper.updateBook(b);
+                break;
+            }
         }
     }
 }

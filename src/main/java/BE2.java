@@ -3,6 +3,8 @@ package main.java;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
+
+import main.java.core.TicketManagement;
 import main.java.ui.MainMenu;
 import main.java.ui.Menu;
 import main.java.util.DatabaseHelper;
@@ -23,7 +25,7 @@ public class BE2 {
 
     public static Menu currentMenu = new MainMenu();
 
-    public static String currentUsername;
+    public static String currentAdmin;
 
     public static Connection connection;
 
@@ -32,9 +34,10 @@ public class BE2 {
     public static boolean exitFlag = false;
 
     public static void main(String[] args) {
-
         DatabaseHelper.connect();
         scanner = new Scanner(System.in);
+
+        TicketManagement.updateTicketList();
 
         while (!exitFlag) {
             Menu.showMenu(currentMenu);

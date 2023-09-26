@@ -6,10 +6,10 @@ public class AdminMenu extends Menu {
     @Override
     protected void initMenu() {
         System.out.println("---ADMIN MENU-------------------------------------------------------------------------------------------------------------------------------------------------");
-        options.add("Manage books");
-        options.add("Manage categories");
-        options.add("Manage authors");
-        options.add("Manage publishers");
+        options.add("Manage Books");
+        options.add("Manage Categories");
+        options.add("Manage Book Issues");
+        options.add("Manage Users");
         options.add("Logout");
     }
 
@@ -20,20 +20,17 @@ public class AdminMenu extends Menu {
                 BE2.currentMenu = new ManageBooksMenu();
                 break;
             case 2:
-                
-
+                BE2.currentMenu = new ManageCategoriesMenu();
                 break;
             case 3: 
-                
-
+                BE2.currentMenu = new ManageBookIssuesMenu();
                 break;
             case 4:
-                
-
+                BE2.currentMenu = new ManageCustomersMenu();
                 break;
             case 5:
                 BE2.currentMenu = new MainMenu();
-                BE2.currentUsername = null;
+                BE2.currentAdmin = null;
                 break;
         }
     }

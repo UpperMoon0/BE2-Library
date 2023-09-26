@@ -7,12 +7,12 @@ public class ManageBooksMenu extends Menu {
     @Override
     protected void initMenu() {
         System.out.println("---MANAGE BOOKS MENU------------------------------------------------------------------------------------------------------------------------------------------");
-        options.add("Add book");
-        options.add("Update book");
-        options.add("Delete book");
-        options.add("View all books in the library");
-        options.add("Search for book");
-        options.add("Back to admin menu");
+        options.add("Add Book");
+        options.add("Update Book");
+        options.add("Delete Book");
+        options.add("View All Books In The Library");
+        options.add("Search For Book");
+        options.add("Back To Admin Menu");
     }
 
     @Override
@@ -32,10 +32,10 @@ public class ManageBooksMenu extends Menu {
                 break;
             case 4:
                 System.out.println("---VIEW ALL BOOKS IN THE LIBRARY------------------------------------------------------------------------------------------------------------------------------");
-                BooksManagement.showAllBooks();
+                BooksManagement.showAllBooks(true);
                 break;
             case 5:
-                BE2.currentMenu = new SearchBookMenu(true);
+                BE2.currentMenu = new SearchBookMenu();
                 break;
             case 6:
                 BE2.currentMenu = new AdminMenu();
