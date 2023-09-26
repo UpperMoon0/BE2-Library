@@ -5,8 +5,8 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 import main.java.core.TicketManagement;
-import main.java.ui.MainMenu;
-import main.java.ui.Menu;
+import main.java.menu.MainMenu;
+import main.java.menu.Menu;
 import main.java.util.DatabaseHelper;
 
 public class BE2 {

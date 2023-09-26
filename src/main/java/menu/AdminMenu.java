@@ -1,4 +1,4 @@
-package main.java.ui;
+package main.java.menu;
 
 import main.java.BE2;
 
