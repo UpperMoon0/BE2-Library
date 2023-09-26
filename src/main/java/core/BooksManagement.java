@@ -32,6 +32,7 @@ public abstract class BooksManagement {
             }
         }
 
+        System.out.println();
         System.out.println("Category list:");
         CategoryManagement.showAllCategory();
         System.out.println();
@@ -48,6 +49,7 @@ public abstract class BooksManagement {
             }
         }
 
+        System.out.println();
         System.out.println("Author list:");
         DatabaseHelper.printAuthorListMini();
         System.out.println();
@@ -64,6 +66,7 @@ public abstract class BooksManagement {
             }
         }
 
+        System.out.println();
         System.out.println("Publisher list:");
         DatabaseHelper.printPublisherListMini();
         System.out.println();
@@ -131,6 +134,7 @@ public abstract class BooksManagement {
             title = oldBook.getTitle();
         }
 
+        System.out.println();
         System.out.println("Category list:");
         CategoryManagement.showAllCategory();
         System.out.println();
@@ -145,6 +149,7 @@ public abstract class BooksManagement {
             System.out.println(BE2.ANSI_RED + "Category ID must be an integer." + BE2.ANSI_RESET);
         }
 
+        System.out.println();
         System.out.println("Author list:");
         DatabaseHelper.printAuthorListMini();
         System.out.println();
@@ -159,6 +164,7 @@ public abstract class BooksManagement {
             System.out.println(BE2.ANSI_RED + "Author ID must be an integer." + BE2.ANSI_RESET);
         }
 
+        System.out.println();
         System.out.println("Publisher list:");
         DatabaseHelper.printPublisherListMini();
         System.out.println();
