@@ -6,7 +6,7 @@ import main.java.core.CustomerManagement;
 public class ManageCustomersMenu extends Menu {
     @Override
     protected void initMenu() {
-        System.out.println("---MANAGE USERS-----------------------------------------------------------------------------------------------------------------------------------------------");
+        System.out.println("---MANAGE CUSTOMER MENU---------------------------------------------------------------------------------------------------------------------------------------");
         options.add("Register New Customer");
         options.add("View All Customers");
         options.add("Back To Admin Menu");
