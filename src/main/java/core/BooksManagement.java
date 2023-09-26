@@ -208,6 +208,11 @@ public abstract class BooksManagement {
                 bookID = Integer.parseInt(InputHelper.inputInt("Enter book ID: "));
                 if (!doesBookExist(bookID)) {
                     System.out.println(BE2.ANSI_RED + "Book ID cannot be 0 and must exist in the database." + BE2.ANSI_RESET);
+                } else {
+                    if (getBookById(bookID).getStatus() == 1) {
+                        System.out.println(BE2.ANSI_RED + "Book is being borrowed." + BE2.ANSI_RESET);
+                        bookID = 0;
+                    }
                 }
             } catch (NumberFormatException e) {
                 System.out.println(BE2.ANSI_RED + "Book ID cannot be empty." + BE2.ANSI_RESET);
